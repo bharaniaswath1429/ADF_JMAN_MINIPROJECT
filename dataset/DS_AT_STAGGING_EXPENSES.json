@@ -1,0 +1,17 @@
+{
+	"name": "DS_AT_STAGGING_EXPENSES",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "LS_AT_ExpensesTracker",
+			"type": "LinkedServiceReference"
+		},
+		"annotations": [],
+		"type": "AzureSqlTable",
+		"schema": [],
+		"typeProperties": {
+			"schema": "Stagging",
+			"table": "Expenses"
+		}
+	},
+	"type": "Microsoft.DataFactory/factories/datasets"
+}

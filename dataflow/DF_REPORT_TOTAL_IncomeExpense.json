@@ -1,0 +1,76 @@
+{
+	"name": "DF_REPORT_TOTAL_IncomeExpense",
+	"properties": {
+		"type": "MappingDataFlow",
+		"typeProperties": {
+			"sources": [
+				{
+					"dataset": {
+						"referenceName": "DS_AT_PREP_Combined",
+						"type": "DatasetReference"
+					},
+					"name": "PrepData"
+				}
+			],
+			"sinks": [
+				{
+					"dataset": {
+						"referenceName": "DS_AT_REPORT_TotalIncomeExpenses",
+						"type": "DatasetReference"
+					},
+					"name": "REPORT1"
+				}
+			],
+			"transformations": [
+				{
+					"name": "TotalInomeExpense"
+				},
+				{
+					"name": "orderbyId"
+				},
+				{
+					"name": "filterNull"
+				}
+			],
+			"scriptLines": [
+				"source(output(",
+				"          id as integer,",
+				"          name as string,",
+				"          email as string,",
+				"          createdAt as string,",
+				"          password as string,",
+				"          type as string,",
+				"          date as date,",
+				"          amount as double,",
+				"          category as string,",
+				"          account as string,",
+				"          note as string,",
+				"          userIdNew as integer",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     isolationLevel: 'READ_UNCOMMITTED',",
+				"     format: 'table') ~> PrepData",
+				"PrepData aggregate(groupBy(userIdNew,",
+				"          name,",
+				"          type),",
+				"     amount = sum(amount)) ~> TotalInomeExpense",
+				"filterNull sort(desc(type, true),",
+				"     desc(amount, true),",
+				"     asc(userIdNew, true)) ~> orderbyId",
+				"TotalInomeExpense filter(!isNull(userIdNew)) ~> filterNull",
+				"orderbyId sink(allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     deletable:false,",
+				"     insertable:true,",
+				"     updateable:false,",
+				"     upsertable:false,",
+				"     recreate:true,",
+				"     format: 'table',",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true,",
+				"     errorHandlingOption: 'stopOnFirstError') ~> REPORT1"
+			]
+		}
+	}
+}

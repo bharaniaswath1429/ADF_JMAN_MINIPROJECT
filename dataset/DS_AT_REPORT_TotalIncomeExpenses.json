@@ -1,0 +1,17 @@
+{
+	"name": "DS_AT_REPORT_TotalIncomeExpenses",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "LS_AT_ExpensesTracker",
+			"type": "LinkedServiceReference"
+		},
+		"annotations": [],
+		"type": "AzureSqlTable",
+		"schema": [],
+		"typeProperties": {
+			"schema": "Report",
+			"table": "TotalIncomeExpenses"
+		}
+	},
+	"type": "Microsoft.DataFactory/factories/datasets"
+}

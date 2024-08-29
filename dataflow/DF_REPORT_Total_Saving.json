@@ -1,0 +1,84 @@
+{
+	"name": "DF_REPORT_Total_Saving",
+	"properties": {
+		"type": "MappingDataFlow",
+		"typeProperties": {
+			"sources": [
+				{
+					"dataset": {
+						"referenceName": "DS_AT_PREP_Combined",
+						"type": "DatasetReference"
+					},
+					"name": "PrepData"
+				}
+			],
+			"sinks": [
+				{
+					"dataset": {
+						"referenceName": "DS_AT_REPORT_TotalSavings",
+						"type": "DatasetReference"
+					},
+					"name": "REPORT3"
+				}
+			],
+			"transformations": [
+				{
+					"name": "filterNull"
+				},
+				{
+					"name": "aggregate1"
+				},
+				{
+					"name": "orderByid"
+				},
+				{
+					"name": "derivedColumn1"
+				},
+				{
+					"name": "savings"
+				}
+			],
+			"scriptLines": [
+				"source(output(",
+				"          id as integer,",
+				"          name as string,",
+				"          email as string,",
+				"          createdAt as string,",
+				"          password as string,",
+				"          type as string,",
+				"          date as date,",
+				"          amount as double,",
+				"          category as string,",
+				"          account as string,",
+				"          note as string,",
+				"          userIdNew as integer",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     isolationLevel: 'READ_UNCOMMITTED',",
+				"     format: 'table') ~> PrepData",
+				"PrepData filter(!isNull(userIdNew)) ~> filterNull",
+				"filterNull aggregate(groupBy(userIdNew,",
+				"          name,",
+				"          type),",
+				"     Amount = sum(amount)) ~> aggregate1",
+				"aggregate1 sort(asc(userIdNew, true),",
+				"     desc(type, true)) ~> orderByid",
+				"orderByid derive(Amountnew = iif(type==\"Expenses\", -Amount, Amount)) ~> derivedColumn1",
+				"derivedColumn1 aggregate(groupBy(userIdNew,",
+				"          name),",
+				"     Saving = sum(Amountnew)) ~> savings",
+				"savings sink(allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     deletable:false,",
+				"     insertable:true,",
+				"     updateable:false,",
+				"     upsertable:false,",
+				"     format: 'table',",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true,",
+				"     errorHandlingOption: 'stopOnFirstError') ~> REPORT3"
+			]
+		}
+	}
+}

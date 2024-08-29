@@ -1,0 +1,9 @@
+{
+	"name": "ExpenseseTracker",
+	"location": "centralindia",
+	"identity": {
+		"type": "SystemAssigned",
+		"principalId": "2fa1b8a0-3355-4c5b-b2c2-78ac84231db2",
+		"tenantId": "2800c0a0-70e9-49be-8733-faeaa6aced99"
+	}
+}

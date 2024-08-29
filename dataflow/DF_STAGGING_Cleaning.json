@@ -1,0 +1,131 @@
+{
+	"name": "DF_STAGGING_Cleaning",
+	"properties": {
+		"type": "MappingDataFlow",
+		"typeProperties": {
+			"sources": [
+				{
+					"dataset": {
+						"referenceName": "DS_AT_RAW_Expenses",
+						"type": "DatasetReference"
+					},
+					"name": "RawAtExpenses"
+				},
+				{
+					"dataset": {
+						"referenceName": "DS_AT_RAW_Users",
+						"type": "DatasetReference"
+					},
+					"name": "RawAtUsers"
+				}
+			],
+			"sinks": [
+				{
+					"dataset": {
+						"referenceName": "DS_AT_STAGGING_Users",
+						"type": "DatasetReference"
+					},
+					"name": "StaggingAtUsers"
+				},
+				{
+					"dataset": {
+						"referenceName": "DS_AT_STAGGING_EXPENSES",
+						"type": "DatasetReference"
+					},
+					"name": "StaggingAtExpenses"
+				}
+			],
+			"transformations": [
+				{
+					"name": "Rankusers"
+				},
+				{
+					"name": "RankExpense"
+				},
+				{
+					"name": "removedup"
+				},
+				{
+					"name": "removedupli"
+				},
+				{
+					"name": "userIdNew"
+				},
+				{
+					"name": "selectNecessary"
+				}
+			],
+			"scriptLines": [
+				"source(output(",
+				"          id as integer,",
+				"          type as string,",
+				"          date as date,",
+				"          amount as double,",
+				"          category as string,",
+				"          account as string,",
+				"          note as string,",
+				"          userId as integer,",
+				"          createdAt as date",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     isolationLevel: 'READ_UNCOMMITTED',",
+				"     format: 'table') ~> RawAtExpenses",
+				"source(output(",
+				"          id as integer,",
+				"          name as string,",
+				"          email as string,",
+				"          createdAt as string",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     isolationLevel: 'READ_UNCOMMITTED',",
+				"     format: 'table') ~> RawAtUsers",
+				"RawAtUsers window(over(id),",
+				"     asc(id, true),",
+				"     Rank = rowNumber()) ~> Rankusers",
+				"RawAtExpenses window(over(id),",
+				"     asc(id, true),",
+				"     Rank = rowNumber()) ~> RankExpense",
+				"Rankusers filter(Rank==1) ~> removedup",
+				"RankExpense filter(Rank==1) ~> removedupli",
+				"removedupli derive(userIdNew = userId-7) ~> userIdNew",
+				"userIdNew select(mapColumn(",
+				"          id,",
+				"          type,",
+				"          date,",
+				"          amount,",
+				"          category,",
+				"          account,",
+				"          note,",
+				"          userIdNew,",
+				"          createdAt",
+				"     ),",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> selectNecessary",
+				"removedup sink(allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     deletable:false,",
+				"     insertable:true,",
+				"     updateable:false,",
+				"     upsertable:false,",
+				"     recreate:true,",
+				"     format: 'table',",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true,",
+				"     errorHandlingOption: 'stopOnFirstError') ~> StaggingAtUsers",
+				"selectNecessary sink(allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     deletable:false,",
+				"     insertable:true,",
+				"     updateable:false,",
+				"     upsertable:false,",
+				"     recreate:true,",
+				"     format: 'table',",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true,",
+				"     errorHandlingOption: 'stopOnFirstError') ~> StaggingAtExpenses"
+			]
+		}
+	}
+}

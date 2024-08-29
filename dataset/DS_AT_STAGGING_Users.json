@@ -1,0 +1,17 @@
+{
+	"name": "DS_AT_STAGGING_Users",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "LS_AT_ExpensesTracker",
+			"type": "LinkedServiceReference"
+		},
+		"annotations": [],
+		"type": "AzureSqlTable",
+		"schema": [],
+		"typeProperties": {
+			"schema": "Stagging",
+			"table": "Users"
+		}
+	},
+	"type": "Microsoft.DataFactory/factories/datasets"
+}

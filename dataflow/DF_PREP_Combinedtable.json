@@ -1,0 +1,103 @@
+{
+	"name": "DF_PREP_Combinedtable",
+	"properties": {
+		"type": "MappingDataFlow",
+		"typeProperties": {
+			"sources": [
+				{
+					"dataset": {
+						"referenceName": "DS_AT_STAGGING_EXPENSES",
+						"type": "DatasetReference"
+					},
+					"name": "StaggingAtExpenses"
+				},
+				{
+					"dataset": {
+						"referenceName": "DS_AT_STAGGING_Users",
+						"type": "DatasetReference"
+					},
+					"name": "StaggingAtUsers"
+				}
+			],
+			"sinks": [
+				{
+					"dataset": {
+						"referenceName": "DS_AT_PREP_Combined",
+						"type": "DatasetReference"
+					},
+					"name": "PrepCombined"
+				}
+			],
+			"transformations": [
+				{
+					"name": "SelectNecessaryCol"
+				},
+				{
+					"name": "Usersexpenses"
+				}
+			],
+			"scriptLines": [
+				"source(output(",
+				"          id as integer,",
+				"          type as string,",
+				"          date as date,",
+				"          amount as double,",
+				"          category as string,",
+				"          account as string,",
+				"          note as string,",
+				"          userIdNew as integer,",
+				"          createdAt as date",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     isolationLevel: 'READ_UNCOMMITTED',",
+				"     format: 'table') ~> StaggingAtExpenses",
+				"source(output(",
+				"          id as integer,",
+				"          name as string,",
+				"          email as string,",
+				"          createdAt as string,",
+				"          password as string,",
+				"          Rank as integer",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     isolationLevel: 'READ_UNCOMMITTED',",
+				"     format: 'table') ~> StaggingAtUsers",
+				"Usersexpenses select(mapColumn(",
+				"          id = StaggingAtUsers@id,",
+				"          name,",
+				"          email,",
+				"          createdAt = StaggingAtUsers@createdAt,",
+				"          password,",
+				"          id = StaggingAtExpenses@id,",
+				"          type,",
+				"          date,",
+				"          amount,",
+				"          category,",
+				"          account,",
+				"          note,",
+				"          userIdNew",
+				"     ),",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true) ~> SelectNecessaryCol",
+				"StaggingAtUsers, StaggingAtExpenses join(StaggingAtUsers@id == userIdNew,",
+				"     joinType:'left',",
+				"     matchType:'exact',",
+				"     ignoreSpaces: false,",
+				"     broadcast: 'auto')~> Usersexpenses",
+				"SelectNecessaryCol sink(allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     deletable:false,",
+				"     insertable:true,",
+				"     updateable:false,",
+				"     upsertable:false,",
+				"     recreate:true,",
+				"     format: 'table',",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true,",
+				"     errorHandlingOption: 'stopOnFirstError') ~> PrepCombined"
+			]
+		}
+	}
+}

@@ -1,0 +1,17 @@
+{
+	"name": "DS_AT_PREP_Combined",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "LS_AT_ExpensesTracker",
+			"type": "LinkedServiceReference"
+		},
+		"annotations": [],
+		"type": "AzureSqlTable",
+		"schema": [],
+		"typeProperties": {
+			"schema": "Prep",
+			"table": "Combined"
+		}
+	},
+	"type": "Microsoft.DataFactory/factories/datasets"
+}

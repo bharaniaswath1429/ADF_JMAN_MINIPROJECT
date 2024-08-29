@@ -1,0 +1,17 @@
+{
+	"name": "DS_AT_RAW_Expenses",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "LS_AT_ExpensesTracker",
+			"type": "LinkedServiceReference"
+		},
+		"annotations": [],
+		"type": "AzureSqlTable",
+		"schema": [],
+		"typeProperties": {
+			"schema": "Raw",
+			"table": "Expenses"
+		}
+	},
+	"type": "Microsoft.DataFactory/factories/datasets"
+}

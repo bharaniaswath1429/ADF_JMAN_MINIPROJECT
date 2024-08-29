@@ -1,0 +1,17 @@
+{
+	"name": "DS_AT_REPORT_TotalSavings",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "LS_AT_ExpensesTracker",
+			"type": "LinkedServiceReference"
+		},
+		"annotations": [],
+		"type": "AzureSqlTable",
+		"schema": [],
+		"typeProperties": {
+			"schema": "Report",
+			"table": "TotalSavings"
+		}
+	},
+	"type": "Microsoft.DataFactory/factories/datasets"
+}

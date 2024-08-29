@@ -1,0 +1,74 @@
+{
+	"name": "DF_REPORT_MOST_Type",
+	"properties": {
+		"type": "MappingDataFlow",
+		"typeProperties": {
+			"sources": [
+				{
+					"dataset": {
+						"referenceName": "DS_AT_PREP_Combined",
+						"type": "DatasetReference"
+					},
+					"name": "PrepData"
+				}
+			],
+			"sinks": [
+				{
+					"dataset": {
+						"referenceName": "DS_AT_REPORT_MostSpentType",
+						"type": "DatasetReference"
+					},
+					"name": "REPORT2"
+				}
+			],
+			"transformations": [
+				{
+					"name": "filterNull"
+				},
+				{
+					"name": "aggregate1"
+				},
+				{
+					"name": "orderby"
+				}
+			],
+			"scriptLines": [
+				"source(output(",
+				"          id as integer,",
+				"          name as string,",
+				"          email as string,",
+				"          createdAt as string,",
+				"          password as string,",
+				"          type as string,",
+				"          date as date,",
+				"          amount as double,",
+				"          category as string,",
+				"          account as string,",
+				"          note as string,",
+				"          userIdNew as integer",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     isolationLevel: 'READ_UNCOMMITTED',",
+				"     format: 'table') ~> PrepData",
+				"PrepData filter(!isNull(userIdNew)) ~> filterNull",
+				"filterNull aggregate(groupBy(type,",
+				"          category),",
+				"     account = sum(amount)) ~> aggregate1",
+				"aggregate1 sort(desc(type, true),",
+				"     desc(account, true)) ~> orderby",
+				"orderby sink(allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     deletable:false,",
+				"     insertable:true,",
+				"     updateable:false,",
+				"     upsertable:false,",
+				"     recreate:true,",
+				"     format: 'table',",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true,",
+				"     errorHandlingOption: 'stopOnFirstError') ~> REPORT2"
+			]
+		}
+	}
+}
